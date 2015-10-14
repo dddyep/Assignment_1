@@ -33,6 +33,7 @@ class LineAnalyzer
   def calculate_word_frequency
     frequency = Hash.new(0)
     @content.to_s.chomp.split(' ').each do |word|
+      word = word.downcase
       frequency[word] = frequency[word] + 1
       if (frequency[word] > @highest_wf_count)
         @highest_wf_words.clear
@@ -57,8 +58,8 @@ class Solution
 
   def initialize
     @analyzers = Array.new
-    @highest_count_across_lines = 0
-    @highest_count_words_across_lines = Array.new
+    @highest_count_across_lines = nil
+    @highest_count_words_across_lines = nil
   end
 
   # Implement the following methods in the Solution class.
@@ -73,9 +74,11 @@ class Solution
   #* Create an array of LineAnalyzers for each line in the file
   def analyze_file
     index = 0
-    File.open('test.txt', 'r') do |line|
-      @analyzers.push(LineAnalyzer.new(line, index))
-      index = index + 1
+    File.open("test.txt") do |file|
+      file.each_line do |line|
+        @analyzers.push(LineAnalyzer.new(line.chomp, index))
+        index = index + 1
+      end
     end
   end
 
@@ -85,8 +88,9 @@ class Solution
   #* identifies the LineAnalyzer objects in the analyzers array that have highest_wf_count equal to highest_count_across_lines 
   #  attribute value determined previously and stores them in highest_count_words_across_lines.
   def calculate_line_with_highest_frequency
+    @highest_count_across_lines = 0
+    @highest_count_words_across_lines = Array.new
     @analyzers.length.times do |index|
-      @analyzers[index].calculate_word_frequency
       if (@analyzers[index].highest_wf_count > @highest_count_across_lines)
         @highest_count_across_lines = @analyzers[index].highest_wf_count
         @highest_count_words_across_lines.clear
@@ -100,10 +104,10 @@ class Solution
   #Implement the print_highest_word_frequency_across_lines() method to
   #* print the values of objects in highest_count_words_across_lines in the specified format
   def print_highest_word_frequency_across_lines
-    self.calculate_line_with_highest_frequency
-    p 'The following words have the highest word frequency per line:'
+    puts 'The following words have the highest word frequency per line:'
     @highest_count_words_across_lines.each do |curAnalyzer|
-      p curAnalyzer.highest_wf_words + ' appears in line #{curAnalyzer.line_number}'
+      print curAnalyzer.highest_wf_words
+      puts " appears in line #{curAnalyzer.line_number}"
     end
   end
 end
